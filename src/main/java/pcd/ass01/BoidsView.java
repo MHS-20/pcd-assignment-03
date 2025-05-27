@@ -6,6 +6,8 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import pcd.ass01.BoidProtocol.*;
+
 import java.awt.*;
 import java.util.Hashtable;
 
@@ -16,12 +18,21 @@ public class BoidsView implements ChangeListener {
     private JSlider cohesionSlider, separationSlider, alignmentSlider;
     private BoidsModel model;
     private int width, height;
-    private ActorRef manager;
 
-    public BoidsView(BoidsModel model, int width, int height) {
+    private ActorRef manager;
+    private int nBoids;
+    private boolean isRunning = false;
+
+    private JButton resetButton;
+    private JTextField nBoidsTextField;
+    private JButton playButton;
+
+    public BoidsView(BoidsModel model, int width, int height, int nBoids) {
         this.model = model;
         this.width = width;
         this.height = height;
+        this.nBoids = nBoids;
+        this.isRunning = false;
 
         frame = new JFrame("Boids Simulation");
         frame.setSize(width, height);
@@ -49,6 +60,59 @@ public class BoidsView implements ChangeListener {
 
         cp.add(BorderLayout.SOUTH, slidersPanel);
 
+        frame.setContentPane(cp);
+        frame.setVisible(true);
+
+        nBoidsTextField = new JTextField(String.valueOf(this.nBoids), 10);
+        nBoidsTextField.setForeground(Color.BLACK);
+
+        nBoidsTextField.addActionListener(l -> {
+            nBoidsTextField.setForeground(Color.WHITE);
+            String text = nBoidsTextField.getText();
+            if (!isNumeric(text)) {
+                nBoidsTextField.setBackground(Color.ORANGE);
+                nBoidsTextField.setText("Int only");
+            } else {
+                nBoidsTextField.setBackground(Color.WHITE);
+                nBoidsTextField.setForeground(Color.GREEN);
+                this.nBoids = Integer.parseInt(nBoidsTextField.getText());
+                manager.tell(new ResetSimulation(this.nBoids), ActorRef.noSender());
+            }
+        });
+
+        resetButton = new JButton("Reset");
+        resetButton.addActionListener(e -> {
+            manager.tell(new BoidProtocol.ResetSimulation(nBoids), ActorRef.noSender());
+        });
+
+        playButton = new JButton("Suspend");
+        playButton.addActionListener(e -> {
+            if (isRunning) {
+                isRunning = false;
+                playButton.setText("Resume");
+                resetButton.setEnabled(true);
+                manager.tell(new BoidProtocol.StopSimulation(), ActorRef.noSender());
+            } else {
+                isRunning = true;
+                playButton.setText("Suspend");
+                nBoidsTextField.setForeground(Color.BLACK);
+                resetButton.setEnabled(false);
+                manager.tell(new BoidProtocol.StartSimulation(), ActorRef.noSender());
+            }
+        });
+
+        slidersPanel.add(playButton);
+        slidersPanel.add(new JLabel("Size"));
+        slidersPanel.add(nBoidsTextField);
+        slidersPanel.add(resetButton);
+        slidersPanel.add(new JLabel("Separation"));
+        slidersPanel.add(separationSlider);
+        slidersPanel.add(new JLabel("Alignment"));
+        slidersPanel.add(alignmentSlider);
+        slidersPanel.add(new JLabel("Cohesion"));
+        slidersPanel.add(cohesionSlider);
+
+        cp.add(BorderLayout.SOUTH, slidersPanel);
         frame.setContentPane(cp);
         frame.setVisible(true);
     }
@@ -88,12 +152,15 @@ public class BoidsView implements ChangeListener {
         if (e.getSource() == separationSlider) {
             var val = separationSlider.getValue();
             model.setSeparationWeight(0.1 * val);
+            manager.tell(new SetSeparationWeight(0.1 * val), ActorRef.noSender());
         } else if (e.getSource() == cohesionSlider) {
             var val = cohesionSlider.getValue();
             model.setCohesionWeight(0.1 * val);
+            manager.tell(new SetCohesionWeight(0.1 * val), ActorRef.noSender());
         } else {
             var val = alignmentSlider.getValue();
             model.setAlignmentWeight(0.1 * val);
+            manager.tell(new SetAlignmentWeight(0.1 * val), ActorRef.noSender());
         }
     }
 
@@ -105,4 +172,23 @@ public class BoidsView implements ChangeListener {
         return height;
     }
 
+    public int getNBoids() {
+        return nBoids;
+    }
+
+    public boolean isRunning() {
+        return isRunning;
+    }
+
+    public boolean isNumeric(String text) {
+        if (text == null) {
+            return false;
+        }
+        try {
+            Integer.parseInt(text);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+        return true;
+    }
 }

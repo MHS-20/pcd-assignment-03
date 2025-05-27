@@ -20,7 +20,6 @@ public class BoidsSimulation {
     final static int SCREEN_WIDTH = 800;
     final static int SCREEN_HEIGHT = 800;
 
-
     public static void main(String[] args) {
         var model = new BoidsModel(
                 N_BOIDS,
@@ -31,14 +30,14 @@ public class BoidsSimulation {
                 AVOID_RADIUS);
 
         var system = ActorSystem.create("my-actor-system");
-        var view = new BoidsView(model, SCREEN_WIDTH, SCREEN_HEIGHT);
+        var view = new BoidsView(model, SCREEN_WIDTH, SCREEN_HEIGHT, N_BOIDS);
 
         var managerActor = system.actorOf(
-                SimulationManagerActor.props(model, N_BOIDS, view),
+                BoidsManagerActor.props(model, N_BOIDS, view),
                 "simulation-manager");
 
         view.setManager(managerActor);
         managerActor.tell(new BoidProtocol.BootSimulation(model), ActorRef.noSender());
-        managerActor.tell(new BoidProtocol.StartSimulation(), ActorRef.noSender());
+        //managerActor.tell(new BoidProtocol.StartSimulation(), ActorRef.noSender());
     }
 }
