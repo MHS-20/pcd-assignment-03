@@ -1,8 +1,7 @@
-package pcd.ass01;
+package common;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class BoidsModel {
 
@@ -16,7 +15,7 @@ public class BoidsModel {
     private final double perceptionRadius;
     private final double avoidRadius;
 
-    public BoidsModel(int nboids,
+    public BoidsModel(int nBoids,
                       double initialSeparationWeight,
                       double initialAlignmentWeight,
                       double initialCohesionWeight,
@@ -34,21 +33,21 @@ public class BoidsModel {
         this.perceptionRadius = perceptionRadius;
         this.avoidRadius = avoidRadius;
 
-        boids = new ArrayList<>();
-        for (int i = 0; i < nboids; i++) {
+        boids = generateBoids(nBoids);
+    }
+
+    private List<Boid> generateBoids(int nBoids) {
+        List<Boid> boids = new ArrayList<Boid>();
+        for (int i = 0; i < nBoids; i++) {
             P2d pos = new P2d(-width / 2 + Math.random() * width, -height / 2 + Math.random() * height);
             V2d vel = new V2d(Math.random() * maxSpeed / 2 - maxSpeed / 4, Math.random() * maxSpeed / 2 - maxSpeed / 4);
             boids.add(new Boid(pos, vel));
         }
-
-    }
-
-    public List<Boid> getBoids() {
         return boids;
     }
 
-    public void setBoids(List<Boid> boids) {
-        this.boids = boids;
+    public List<Boid> getBoids() {
+        return new ArrayList<>(boids);
     }
 
     public double getMinX() {
@@ -75,27 +74,27 @@ public class BoidsModel {
         return height;
     }
 
-    public void setSeparationWeight(double value) {
+    public synchronized void setSeparationWeight(double value) {
         this.separationWeight = value;
     }
 
-    public void setAlignmentWeight(double value) {
+    public synchronized void setAlignmentWeight(double value) {
         this.alignmentWeight = value;
     }
 
-    public void setCohesionWeight(double value) {
+    public synchronized void setCohesionWeight(double value) {
         this.cohesionWeight = value;
     }
 
-    public double getSeparationWeight() {
+    public synchronized double getSeparationWeight() {
         return separationWeight;
     }
 
-    public double getCohesionWeight() {
+    public synchronized double getCohesionWeight() {
         return cohesionWeight;
     }
 
-    public double getAlignmentWeight() {
+    public synchronized double getAlignmentWeight() {
         return alignmentWeight;
     }
 
@@ -109,5 +108,10 @@ public class BoidsModel {
 
     public double getPerceptionRadius() {
         return perceptionRadius;
+    }
+
+    public void resetBoids(int sizeBoids) {
+        boids.clear();
+        boids = generateBoids(sizeBoids);
     }
 }
