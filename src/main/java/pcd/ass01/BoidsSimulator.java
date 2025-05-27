@@ -40,7 +40,7 @@ public class BoidsSimulator {
     		 * ..then update positions
     		 */
     		for (Boid boid : boids) {
-                boid.updatePos(model);
+                boid.updatePosition(model);
             }
 
     		if (view.isPresent()) {
@@ -58,7 +58,6 @@ public class BoidsSimulator {
                 	framerate = (int) (1000/dtElapsed);
                 }
     		}
-            
     	}
     }
 }

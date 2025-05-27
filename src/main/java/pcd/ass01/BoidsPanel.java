@@ -14,6 +14,10 @@ public class BoidsPanel extends JPanel {
     	this.view = view;
     }
 
+    public void setModel(BoidsModel model) {
+        this.model = model;
+    }
+
     public void setFrameRate(int framerate) {
     	this.framerate = framerate;
     }

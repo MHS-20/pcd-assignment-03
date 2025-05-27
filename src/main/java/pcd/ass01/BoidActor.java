@@ -3,51 +3,54 @@ package pcd.ass01;
 import akka.actor.AbstractActor;
 import akka.actor.Props;
 import pcd.ass01.BoidProtocol.*;
-
 import java.util.List;
 
 public class BoidActor extends AbstractActor {
-
     private Boid boid;
     private BoidsModel model;
 
     public BoidActor(Boid boid, BoidsModel model) {
-        this.boid = boid;
-        this.model = model;
-    }
+        // this.boid = boid;
+        //this.model = model;
 
-    @Override
-    public Receive createReceive() {
-        return receiveBuilder()
-                .match(StartUpdate.class, this::onStartUpdate)
-                .match(StartUpdateVelocity.class, this::onStartUpdateVelocity)
-                .match(StartUpdatePoisition.class, this::onStartUpdatePosition)
-                .build();
+        // clone the boid
+        this.boid = new Boid(boid.getPos(), boid.getVel());
+
+        // clone the model
+        this.model = new BoidsModel(model.getBoids().size(),
+                model.getSeparationWeight(),
+                model.getAlignmentWeight(),
+                model.getCohesionWeight(),
+                model.getWidth(),
+                model.getHeight(),
+                model.getMaxSpeed(),
+                model.getPerceptionRadius(),
+                model.getAvoidRadius());
     }
 
     public static Props props(Boid boid, BoidsModel model) {
         return Props.create(BoidActor.class, () -> new BoidActor(boid, model));
     }
 
+    @Override
+    public Receive createReceive() {
+        return receiveBuilder()
+                .match(StartUpdate.class, this::onStartUpdate)
+                .match(SetSeparationWeight.class, msg -> {
+                    model.setSeparationWeight(msg.weight());
+                })
+                .match(SetAlignmentWeight.class, msg -> {
+                    model.setAlignmentWeight(msg.weight());
+                })
+                .match(SetCohesionWeight.class, msg -> {
+                    model.setCohesionWeight(msg.weight());
+                })
+                .build();
+    }
+
     public void onStartUpdate(StartUpdate msg) {
-        List<Boid> boids = msg.boids();
-        model.setBoids(boids);
+        model.setBoids(msg.boids());
         boid.update(model);
-        getSender().tell(new BoidProtocol.UpdatedBoid(boid), getSelf());
-    }
-
-    public void onStartUpdateVelocity(StartUpdateVelocity msg) {
-        List<Boid> boids = msg.boids();
-        model.setBoids(boids);
-        boid.updateVelocity(model);
-        getSender().tell(new BoidProtocol.UpdatedVelocity(boid), getSelf());
-    }
-
-    public void onStartUpdatePosition(StartUpdatePoisition msg) {
-        List<Boid> boids = msg.boids();
-        model.setBoids(boids);
-        boid.updatePos(model);
-        getSender().tell(new BoidProtocol.UpdatedPosition(boid), getSelf());
+        getSender().tell(new UpdatedBoid(boid), getSelf());
     }
 }
-
