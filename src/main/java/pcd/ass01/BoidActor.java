@@ -3,6 +3,7 @@ package pcd.ass01;
 import akka.actor.AbstractActor;
 import akka.actor.Props;
 import pcd.ass01.BoidProtocol.*;
+
 import java.util.List;
 
 public class BoidActor extends AbstractActor {
@@ -11,7 +12,7 @@ public class BoidActor extends AbstractActor {
 
     public BoidActor(Boid boid, BoidsModel model) {
         // this.boid = boid;
-        //this.model = model;
+        // this.model = model;
 
         // clone the boid
         this.boid = new Boid(boid.getPos(), boid.getVel());

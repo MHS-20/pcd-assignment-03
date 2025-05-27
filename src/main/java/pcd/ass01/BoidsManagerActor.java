@@ -19,13 +19,14 @@ public class BoidsManagerActor extends AbstractActorWithStash {
 
     private List<Boid> boids;
     private int count = 0;
-    private final List<ActorRef> boidActors = new ArrayList<>();
+    private List<ActorRef> boidActors = new ArrayList<>();
 
     public BoidsManagerActor(BoidsModel model, int nBoids, BoidsView view) {
         this.model = model;
         this.nBoids = nBoids;
         this.view = view;
         this.boids = new ArrayList<>();
+        this.boidActors = new ArrayList<>();
     }
 
     public static Props props(BoidsModel model, int nBoids, BoidsView view) {
@@ -72,7 +73,6 @@ public class BoidsManagerActor extends AbstractActorWithStash {
                 .match(SetSeparationWeight.class, msg -> this.stash())
                 .match(SetAlignmentWeight.class, msg -> this.stash())
                 .match(SetCohesionWeight.class, msg -> this.stash())
-                .match(UpdatedBoid.class, msg -> this.stash())
                 .build();
     }
 
@@ -93,10 +93,11 @@ public class BoidsManagerActor extends AbstractActorWithStash {
     private void onBootSimulation(BootSimulation msg) {
         System.out.println("Booting simulation");
         model = msg.model();
+        boidActors.clear();
         List<Boid> boids = model.getBoids();
         for (int i = 0; i < nBoids; i++) {
             Boid boid = boids.get(i);
-            ActorRef boidActor = getContext().actorOf(BoidActor.props(boid, model), "boid-" + i);
+            ActorRef boidActor = getContext().actorOf(BoidActor.props(boid, model));
             boidActors.add(boidActor);
         }
         // this.unstashAll();
@@ -105,8 +106,9 @@ public class BoidsManagerActor extends AbstractActorWithStash {
     }
 
     private void onStartSimulation(StartSimulation msg) {
-        System.out.println("Starting simulation with " + nBoids + " boids.");
+        System.out.println("Starting simulation");
         t0 = System.currentTimeMillis();
+
         for (ActorRef boidActor : boidActors) {
             boidActor.tell(new StartUpdate(model.getBoids()), self());
         }
@@ -116,6 +118,8 @@ public class BoidsManagerActor extends AbstractActorWithStash {
 
         this.unstashAll();
         this.getContext().become(collectUpdateBehavior());
+        System.out.println("Started simulation");
+
     }
 
     private void onContinueSimulation(ContinueSimulation msg) {
@@ -166,7 +170,7 @@ public class BoidsManagerActor extends AbstractActorWithStash {
     }
 
     private void onResetSimulation(ResetSimulation msg) {
-        System.out.println("Resetting simulation");
+        System.out.println("Resetting simulation with " + msg.nBoids() + " boids.");
         nBoids = msg.nBoids();
         model.generateBoids(nBoids);
         for (ActorRef boidActor : boidActors) {

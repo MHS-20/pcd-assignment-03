@@ -76,16 +76,18 @@ public class BoidsView implements ChangeListener {
                 nBoidsTextField.setBackground(Color.WHITE);
                 nBoidsTextField.setForeground(Color.GREEN);
                 this.nBoids = Integer.parseInt(nBoidsTextField.getText());
-                manager.tell(new ResetSimulation(this.nBoids), ActorRef.noSender());
+                // System.out.println("New number of boids: " + this.nBoids);
+                //manager.tell(new ResetSimulation(this.nBoids), ActorRef.noSender());
             }
         });
 
         resetButton = new JButton("Reset");
         resetButton.addActionListener(e -> {
-            manager.tell(new BoidProtocol.ResetSimulation(nBoids), ActorRef.noSender());
+           // System.out.println("New number of boids: " + this.nBoids);
+            manager.tell(new BoidProtocol.ResetSimulation(this.nBoids), ActorRef.noSender());
         });
 
-        playButton = new JButton("Suspend");
+        playButton = new JButton("Resume");
         playButton.addActionListener(e -> {
             if (isRunning) {
                 isRunning = false;
