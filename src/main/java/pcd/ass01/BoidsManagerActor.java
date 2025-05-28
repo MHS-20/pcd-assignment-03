@@ -53,12 +53,12 @@ public class BoidsManagerActor extends AbstractActorWithStash {
                 .match(StartSimulation.class, this::onStartSimulation)
                 .match(ContinueSimulation.class, this::onContinueSimulation)
                 .match(StopSimulation.class, this::onStopSimulation)
-                .match(ResetSimulation.class, this::onResetSimulation)
                 .match(SetSeparationWeight.class, this::onSeparationWeight)
                 .match(SetAlignmentWeight.class, this::onAlignmentWeight)
                 .match(SetCohesionWeight.class, this::onCohesionWeight)
                 .match(UpdatedBoid.class, msg -> this.stash())
                 .match(BootSimulation.class, msg -> this.stash())
+                .match(ResetSimulation.class, msg -> this.stash())
                 .build();
     }
 

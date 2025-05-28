@@ -29,7 +29,7 @@ public class BoidsSimulation {
                 PERCEPTION_RADIUS,
                 AVOID_RADIUS);
 
-        var system = ActorSystem.create("my-actor-system");
+        var system = ActorSystem.create("boid-actor-system");
         var view = new BoidsView(model, SCREEN_WIDTH, SCREEN_HEIGHT, N_BOIDS);
 
         var managerActor = system.actorOf(

@@ -44,7 +44,7 @@ public class BoidsModel {
     }
 
     public synchronized List<Boid> getBoids() {
-        return new ArrayList<>(this.boids); // restituisce una copia
+        return new ArrayList<>(this.boids);
     }
 
     public synchronized void generateBoids(int nboids) {
@@ -56,7 +56,28 @@ public class BoidsModel {
         }
     }
 
-    public void setBoids(List<Boid> boids) {
+    public BoidsModel copy() {
+        BoidsModel copy = new BoidsModel(
+                this.boids.size(),
+                this.separationWeight,
+                this.alignmentWeight,
+                this.cohesionWeight,
+                this.width,
+                this.height,
+                this.maxSpeed,
+                this.perceptionRadius,
+                this.avoidRadius
+        );
+        // Copia i boid (deep copy)
+        List<Boid> boidsCopy = new ArrayList<>();
+        for (Boid b : this.boids) {
+            boidsCopy.add(new Boid(b.getPos(), b.getVel()));
+        }
+        copy.setBoids(boidsCopy);
+        return copy;
+    }
+
+    public synchronized void setBoids(List<Boid> boids) {
         this.boids = boids;
     }
 

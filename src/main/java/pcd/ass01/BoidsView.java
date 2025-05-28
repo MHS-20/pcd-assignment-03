@@ -76,14 +76,11 @@ public class BoidsView implements ChangeListener {
                 nBoidsTextField.setBackground(Color.WHITE);
                 nBoidsTextField.setForeground(Color.GREEN);
                 this.nBoids = Integer.parseInt(nBoidsTextField.getText());
-                // System.out.println("New number of boids: " + this.nBoids);
-                //manager.tell(new ResetSimulation(this.nBoids), ActorRef.noSender());
             }
         });
 
         resetButton = new JButton("Reset");
         resetButton.addActionListener(e -> {
-           // System.out.println("New number of boids: " + this.nBoids);
             manager.tell(new BoidProtocol.ResetSimulation(this.nBoids), ActorRef.noSender());
         });
 
@@ -172,14 +169,6 @@ public class BoidsView implements ChangeListener {
 
     public int getHeight() {
         return height;
-    }
-
-    public int getNBoids() {
-        return nBoids;
-    }
-
-    public boolean isRunning() {
-        return isRunning;
     }
 
     public boolean isNumeric(String text) {
